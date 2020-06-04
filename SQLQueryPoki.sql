@@ -83,10 +83,9 @@ FROM Poem
 ORDER BY LEN(Title) DESC
 
 --15--
-SELECT TOP 1 a.[NAME], SUM(p.AuthorId) AS 'Auhtors with most Poems'
+SELECT TOP 1 a.[NAME], COUNT(p.Id) AS PoemCount
 FROM Author a
 JOIN Poem p ON a.Id = p.AuthorId
 GROUP BY a.[Name]
-ORDER BY a.[Name] DESC
-
+ORDER BY PoemCount DESC
 
