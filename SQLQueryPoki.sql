@@ -89,3 +89,51 @@ JOIN Poem p ON a.Id = p.AuthorId
 GROUP BY a.[Name]
 ORDER BY PoemCount DESC
 
+--16--
+SELECT COUNT(p.Id),
+            e.[Name]
+       FROM Poem p
+       JOIN PoemEmotion pm ON p.Id = pm.EmotionId
+       JOIN Emotion e ON pm.EmotionId = e.Id
+       WHERE  e.Id = 3
+       GROUP BY e.Name
+--17--
+SELECT COUNT(p.Id) AS "no emotion" 
+            FROM Poem p
+            LEFT JOIN PoemEmotion pm ON p.Id = pm.PoemId
+             WHERE pm.Id IS NULL
+
+--18--
+SELECT e.[Name] 
+       FROM (SELECT EmotionId,
+                    COUNT(pm.Id) AS EmotionCount 
+                    FROM PoemEmotion pm
+                    GROUP BY pm.EmotionId) AS EmotionCountQuery 
+                    JOIN Emotion e ON e.Id = EmotionCountQuery.EmotionId 
+       WHERE EmotionCountQuery.EmotionCount = (SELECT MIN(EmotionCount) 
+	                                            FROM (
+		                                       SELECT EmotionId, COUNT(PoemEmotion.Id) AS EmotionCount 
+		                                       FROM PoemEmotion 
+		                                       GROUP BY PoemEmotion.EmotionId) AS EmotionCountQuery);
+--19--
+SELECT TOP 1 Grade.Name, COUNT(PoemEmotion.EmotionId) AS PoemCount
+FROM Poem 
+JOIN Author ON Poem.AuthorId = Author.Id 
+JOIN PoemEmotion ON PoemEmotion.PoemId = Poem.Id 
+JOIN Emotion ON Emotion.Id = PoemEmotion.EmotionId 
+JOIN Grade ON Grade.Id = Author.GradeId
+WHERE Emotion.Name = 'joy' 
+GROUP BY Grade.Name 
+ORDER BY PoemCount DESC;
+
+--20--
+SELECT TOP 1 g.[Name], 
+             COUNT(pm.EmotionId) AS PoemCount
+             FROM Poem p
+             JOIN Author a ON p.AuthorId = a.Id
+             JOIN PoemEmotion pm ON pm.PoemId = p.Id
+             JOIN Emotion e ON e.Id = pm.EmotionId
+             JOIN Gender g ON g.Id = a.GenderId 
+             WHERE e.[Name] = 'fear'
+             GROUP BY g.[Name] 
+             ORDER BY PoemCount DESC;
